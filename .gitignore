@@ -2,3 +2,7 @@ db/
 __pycache__/
 node_modules/
 .vscode/
+*.mwb
+*.mwb.bak
+*.sql
+.env

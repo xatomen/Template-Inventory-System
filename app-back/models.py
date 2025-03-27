@@ -1,7 +1,25 @@
 from pydantic import BaseModel
+from datetime import datetime
+from typing import Optional
 
-# Definimos el modelo de usuario
+# Modelo de usuario
 class UserModel(BaseModel):
-    username: str
+    name: str
+    lastname: str
     email: str
     password_hash: str
+
+# Modelo de producto
+class ProductModel(BaseModel):
+    name: str
+    barcode: str
+
+# Modelo de entrada
+class InputModel(BaseModel):
+    qty: int
+    barcode: str
+
+# Modelo de salida
+class OutputModel(BaseModel):
+    qty: int
+    barcode: str
