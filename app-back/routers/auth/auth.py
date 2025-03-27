@@ -19,8 +19,11 @@ router = APIRouter()
 # Crear usuario
 @router.post("/create-user", tags=["Auth"])
 def create_user(user: UserModel, db: Session = Depends(get_db)):
-    # Verificar si el nombre de usuario ya existe
-    existing_user = db.query(UserDB).filter(UserDB.username == user.username).first()
+    # Verificar si el nombre/apellido ya existe
+    existing_user = db.query(UserDB).filter(
+        UserDB.name == user.name,
+        UserDB.lastname == user.lastname,
+        ).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already exists")
     
@@ -30,10 +33,13 @@ def create_user(user: UserModel, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already exists")
     # Si no existe, creamos el usuario
     new_user = UserDB(
-        username=user.username,
+        name=user.name,
+        lastname=user.lastname,
         email=user.email,
         password_hash=hash_password(user.password_hash),
         created_at=datetime.datetime.now(),
+        deleted_at=None,
+        is_active=True,
         is_admin=False
         )
     db.add(new_user)
@@ -44,8 +50,8 @@ def create_user(user: UserModel, db: Session = Depends(get_db)):
 # Inicio de sesión
 @router.post("/login", tags=["Auth"])
 def login(user: UserModel, db: Session = Depends(get_db)):
-    # Buscamos el usuario en la base de datos
-    user_db = db.query(UserDB).filter(UserDB.username == user.username).first()
+    # Buscamos el usuario en la base de datos por su correo electrónico
+    user_db = db.query(UserDB).filter(UserDB.email == user.email).first()
     # Si el usuario no existe, no autorizaoms
     if not user_db:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -54,7 +60,9 @@ def login(user: UserModel, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Unauthorized")
     # Si todo está bien, generamos el token y lo devolvemos
     token_data = {
-        "sub": user_db.username,
+        "sub": user_db.email,
+        "name": user_db.name,
+        "lastname": user_db.lastname,
         "exp": datetime.datetime.now() + datetime.timedelta(minutes=10)  # Tiempo de expiración del token
         }
     token = jwt.encode(token_data, "secret", algorithm="HS256")
