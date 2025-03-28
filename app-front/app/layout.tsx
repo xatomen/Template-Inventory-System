@@ -9,7 +9,7 @@ import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Navbar } from "@/components/navbar";
 
-import { AuthProvider } from "@/context/auth";
+import Login from "@/components/login";
 
 export const metadata: Metadata = {
   title: {
@@ -29,16 +29,13 @@ export const viewport: Viewport = {
   ],
 };
 
+
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Verificar si estamos logeados
-  // const isLoggedIn = useLoggedIn();
-  // if (!isLoggedIn) {
-  //   return <Login />;
-  // }
   return (
     <html suppressHydrationWarning lang="en">
       <head />
@@ -50,9 +47,7 @@ export default function RootLayout({
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <div className="relative flex flex-col h-screen">
-            <AuthProvider>
               <div>{children}</div>
-            </AuthProvider>
           </div>
         </Providers>
       </body>
