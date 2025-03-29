@@ -10,7 +10,7 @@ from models import *
 from security import *
 
 # Importamos las librerías necesarias
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 import datetime
 
 # Instanciamos el router
@@ -18,8 +18,10 @@ router = APIRouter()
 
 # Obtener el listado de usuarios
 @router.get("/users", tags=["Admin"])
-def get_users(user: UserModel, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_users(user: UserModel, request: Request, db: Session = Depends(get_db)):
     try:
+        # Leer la cookie de la solicitud
+        token = request.cookies.get("access_token")
         # Verificamos el token
         payload = jwt.decode(token, "secret", algorithms=["HS256"])
 
@@ -49,8 +51,10 @@ def get_users(user: UserModel, token: str = Depends(oauth2_scheme), db: Session 
     
 # Eliminar un usuario
 @router.post("/delete-user", tags=["Admin"])
-def delete_user(user: UserModel, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def delete_user(user: UserModel, request: Request, db: Session = Depends(get_db)):
     try:
+        # Leer la cookie de la solicitud
+        token = request.cookies.get("access_token")
         # Verificamos el token
         payload = jwt.decode(token, "secret", algorithms=["HS256"])
 

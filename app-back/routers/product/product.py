@@ -10,7 +10,7 @@ from models import *
 from security import *
 
 # Importamos las librerías necesarias
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 import datetime
 
 # Instanciamos el router
@@ -18,8 +18,10 @@ router = APIRouter()
 
 # Crear producto
 @router.post("/create-product", tags=["Product"])
-def create_product(product: ProductModel, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def create_product(product: ProductModel, request: Request, db: Session = Depends(get_db)):
     try:
+        # Leer la cookie de la solicitud
+        token = request.cookies.get("access_token")
         # Verificamos el token
         payload = jwt.decode(token, "secret", algorithms=["HS256"])
 
@@ -65,8 +67,10 @@ def create_product(product: ProductModel, token: str = Depends(oauth2_scheme), d
     
 # Obtener el listado de productos
 @router.get("/products", tags=["Product"])
-def get_products(product: ProductModel, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_products(product: ProductModel, request: Request, db: Session = Depends(get_db)):
     try:
+        # Leer la cookie de la solicitud
+        token = request.cookies.get("access_token")
         # Verificamos el token
         payload = jwt.decode(token, "secret", algorithms=["HS256"])
 
@@ -92,8 +96,10 @@ def get_products(product: ProductModel, token: str = Depends(oauth2_scheme), db:
     
 # Eliminar un producto
 @router.post("/delete-product", tags=["Product"])
-def delete_product(product: ProductModel, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def delete_product(product: ProductModel, request: Request, db: Session = Depends(get_db)):
     try:
+        # Leer la cookie de la solicitud
+        token = request.cookies.get("access_token")
         # Verificamos el token
         payload = jwt.decode(token, "secret", algorithms=["HS256"])
 
