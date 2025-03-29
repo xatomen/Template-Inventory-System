@@ -10,7 +10,7 @@ from models import *
 from security import *
 
 # Importamos las librerías necesarias
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 import datetime
 
 # Instanciamos el router
@@ -18,8 +18,10 @@ router = APIRouter()
 
 # Input de un producto
 @router.post("/input", tags=["Movements"])
-def input_product(input: InputModel, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def input_product(input: InputModel, request: Request, db: Session = Depends(get_db)):
     try:
+        # Leer la cookie de la solicitud
+        token = request.cookies.get("access_token")
         # Verificamos el token
         payload = jwt.decode(token, "secret", algorithms=["HS256"])
 
@@ -65,8 +67,10 @@ def input_product(input: InputModel, token: str = Depends(oauth2_scheme), db: Se
     
 # Output de un producto
 @router.post("/output", tags=["Movements"])
-def output_product(output: OutputModel, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def output_product(output: OutputModel, request: Request, db: Session = Depends(get_db)):
     try:
+        # Leer la cookie de la solicitud
+        token = request.cookies.get("access_token")
         # Verificamos el token
         payload = jwt.decode(token, "secret", algorithms=["HS256"])
 
@@ -109,8 +113,10 @@ def output_product(output: OutputModel, token: str = Depends(oauth2_scheme), db:
 
 # Obtener todos los movimientos
 @router.get("/movements", tags=["Movements"])
-def get_movements(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_movements(request: Request, db: Session = Depends(get_db)):
     try:
+        # Leer la cookie de la solicitud
+        token = request.cookies.get("access_token")
         # Verificamos el token
         payload = jwt.decode(token, "secret", algorithms=["HS256"])
 
