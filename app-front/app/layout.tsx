@@ -1,15 +1,11 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
-import { Link } from "@heroui/link";
 import clsx from "clsx";
 
 import { Providers } from "./providers";
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
-import { Navbar } from "@/components/navbar";
-
-import Login from "@/components/login";
 
 export const metadata: Metadata = {
   title: {
@@ -29,8 +25,6 @@ export const viewport: Viewport = {
   ],
 };
 
-
-
 export default function RootLayout({
   children,
 }: {
@@ -47,7 +41,8 @@ export default function RootLayout({
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <div className="relative flex flex-col h-screen">
-              <div>{children}</div>
+            {/* Renderiza el contenido de la página */}
+            {children}
           </div>
         </Providers>
       </body>
