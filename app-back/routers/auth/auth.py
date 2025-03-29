@@ -69,13 +69,5 @@ def login(user: UserModel, db: Session = Depends(get_db)):
     token = jwt.encode(token_data, "secret", algorithm="HS256")
     
     # Crear una respuesta con la cookie HTTPOnly
-    response = JSONResponse(content={"message": "Login successful"})
-    response.set_cookie(
-        key="access_token",  # Nombre de la cookie
-        value=token,         # Valor de la cookie (el token)
-        httponly=True,       # Hacer la cookie HTTPOnly
-        secure=True,         # Usar solo en HTTPS (puedes desactivarlo en desarrollo)
-        samesite="Strict",   # Evitar que la cookie se envíe en solicitudes de otros sitios
-        max_age=600,         # Tiempo de expiración en segundos (10 minutos en este caso)
-    )
+    response = JSONResponse(content={"message": "Login successful", "token": token})
     return response
