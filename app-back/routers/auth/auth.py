@@ -71,3 +71,51 @@ def login(user: UserModel, db: Session = Depends(get_db)):
     # Crear una respuesta con la cookie HTTPOnly
     response = JSONResponse(content={"message": "Login successful", "token": token})
     return response
+
+# Obtener información del usuario logeado
+@router.get("/user", tags=["Auth"])
+def get_user(request: Request, db: Session = Depends(get_db)):
+    # Obtenemos el token de la cabecera de autorización
+    token = request.headers.get("Authorization")
+    if not token:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    # Decodificamos el token
+    try:
+        payload = jwt.decode(token, "secret", algorithms=["HS256"])
+        user_email = payload["sub"]
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    # Buscamos el usuario en la base de datos por su correo electrónico
+    user_db = db.query(UserDB).filter(UserDB.email == user_email).first()
+    if not user_db:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return user_db
+
+# Obtener información del usuario logeado
+@router.get("/user", tags=["Auth"])
+def get_user(request: Request, db: Session = Depends(get_db)):
+    # Obtenemos el token de la cabecera de autorización
+    token = request.headers.get("Authorization")
+    if not token:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    # Decodificamos el token
+    try:
+        payload = jwt.decode(token, "secret", algorithms=["HS256"])
+        user_email = payload["sub"]
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    # Buscamos el usuario en la base de datos por su correo electrónico
+    user_db = db.query(UserDB).filter(UserDB.email == user_email).first()
+    if not user_db:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return user_db
