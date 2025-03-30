@@ -1,19 +1,77 @@
-
 "use client";
 
 import React from "react";
-import {Button, Input, Checkbox, Link, Form} from "@heroui/react";
+import { Button, Input, Checkbox, Link, Form } from "@heroui/react";
+import { Icon } from "@iconify/react";
+import { setCookie, getCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
+import { addToast } from "@heroui/react";
 
-import {Icon} from "@iconify/react";
-
-export default function Login() {
+export default function LoginComponent() {
+  const router = useRouter();
   const [isVisible, setIsVisible] = React.useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("handleSubmit");
+    const formData = new FormData(event.currentTarget);
+    const data = {
+      name: "",
+      lastname: "",
+      email: formData.get("email"),
+      password_hash: formData.get("password"),
+    };
+
+    try {
+      const response = await fetch("http://localhost:8000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "accept": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const token = result.token;
+
+        // Guarda el token en una cookie
+        setCookie("access_token", token, {
+          maxAge: 10 * 60, // 10 minutos
+          path: "/", // Asegúrate de que la cookie esté disponible en toda la aplicación
+        });
+
+        // Mostrar toast de éxito
+        addToast({
+          color: "success",
+          title: "Login Successful",
+          description: "You have successfully logged in!",
+        });
+
+        // Redirige al dashboard
+        router.push("/dashboard");
+      } else {
+        const error = await response.json();
+
+        // Mostrar toast de error
+        addToast({
+          color: "danger",
+          title: "Login Failed",
+          description: error.detail || "Invalid credentials. Please try again.",
+        });
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+
+      // Mostrar toast de error para errores inesperados
+      addToast({
+        color: "danger",
+        title: "Unexpected Error",
+        description: "An unexpected error occurred. Please try again later.",
+      });
+    }
   };
 
   return (
@@ -25,7 +83,11 @@ export default function Login() {
             👋
           </span>
         </p>
-        <Form className="flex flex-col gap-4" validationBehavior="native" onSubmit={handleSubmit}>
+        <Form
+          className="flex flex-col gap-4"
+          validationBehavior="native"
+          onSubmit={handleSubmit}
+        >
           <Input
             isRequired
             label="Email"
@@ -71,11 +133,6 @@ export default function Login() {
             Log In
           </Button>
         </Form>
-        <p className="text-center text-small">
-          <Link href="#" size="sm">
-            Create an account
-          </Link>
-        </p>
       </div>
     </div>
   );
