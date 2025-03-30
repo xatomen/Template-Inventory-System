@@ -1,17 +1,31 @@
 "use client";
 
-import { setCookie } from "cookies-next";
+import { deleteCookie } from "cookies-next";
 import { Button } from "@heroui/react";
+import { addToast } from "@heroui/react";
+import { useRouter } from "next/navigation";
 
-// Botón logout
 export default function LogoutButton() {
-    const handleLogout = () => {
-        // Elimina el token de la cookie
-        setCookie("access_token", "", { maxAge: -1 });
-        window.location.href = "/login"; // Redirige a la página de inicio de sesión
-    };
+  const router = useRouter();
 
-    return (
-        <Button color="danger" onClick={handleLogout}>Logout</Button>
-    );
+  const handleLogout = () => {
+    // Elimina el token de la cookie
+    deleteCookie("access_token");
+
+    // Muestra el toast de logout exitoso
+    addToast({
+      color: "success",
+      title: "Logout Succesfull",
+      description: "You have successfully logged out!",
+    });
+
+    // Redirige al login usando navegación del lado del cliente
+    router.push("/login");
+  };
+
+  return (
+    <Button color="danger" onClick={handleLogout}>
+      Logout
+    </Button>
+  );
 }
