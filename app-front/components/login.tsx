@@ -133,11 +133,6 @@ export default function LoginComponent() {
             Log In
           </Button>
         </Form>
-        <p className="text-center text-small">
-          <Link href="#" size="sm">
-            Create an account
-          </Link>
-        </p>
       </div>
     </div>
   );
