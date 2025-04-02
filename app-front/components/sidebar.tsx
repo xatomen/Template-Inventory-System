@@ -94,7 +94,7 @@ export default function Sidebar() {
     }, []);
 
     return (
-        <aside className="p-4">
+        <aside className="">
             <Card className="p-4">
                 <User
                     name={user.name + " " + user.lastname}
