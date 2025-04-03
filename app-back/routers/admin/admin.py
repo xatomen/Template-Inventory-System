@@ -18,22 +18,19 @@ router = APIRouter()
 
 # Obtener el listado de usuarios
 @router.get("/users", tags=["Admin"])
-def get_users(user: UserModel, request: Request, db: Session = Depends(get_db)):
+def get_users(request: Request, db: Session = Depends(get_db)):
     try:
-        # Leer la cookie de la solicitud
-        token = request.cookies.get("access_token")
-        # Verificamos el token
-        payload = jwt.decode(token, "secret", algorithms=["HS256"])
-
-        # Buscamos el usuario en la base de datos por su correo electrónico
-        user_db = db.query(UserDB).filter(UserDB.email == payload["sub"]).first()
-
-        # Si el usuario no existe, no autorizamos
-        if not user_db:
+        # Obtenemos el token de la cabecera de autorización
+        token = request.headers.get("Authorization")
+        if not token:
             raise HTTPException(status_code=401, detail="Unauthorized")
         
-        # Si el usuario no es administrador, no autorizamos
-        if not user_db.is_admin:
+        # Verificamos si el usuario es administrador
+        payload = jwt.decode(token, "secret", algorithms=["HS256"])
+        # Buscamos el usuario en la base de datos por su correo electrónico
+        user_db = db.query(UserDB).filter(UserDB.email == payload["sub"]).first()
+        # Si el usuario no existe, no autorizamos
+        if not user_db:
             raise HTTPException(status_code=401, detail="Unauthorized")
         
         # Obtenemos el listado de usuarios activos
