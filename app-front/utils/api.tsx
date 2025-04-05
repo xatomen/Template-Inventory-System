@@ -1,4 +1,7 @@
-import { Table, TableHeader, TableBody, TableRow, TableCell, TableColumn, Spinner, Button } from "@heroui/react";
+import { Table, TableHeader, TableBody, TableRow, TableCell, TableColumn, Spinner, Button, Input } from "@heroui/react";
+import { useState } from "react";
+import { useToast } from "@heroui/react";
+import React from "react";
 
 // Función que retorna el listado de usuarios
 export async function fetchUsersFromAPI(token: string | null) {
@@ -26,6 +29,25 @@ export async function fetchUsersFromAPI(token: string | null) {
   }
 }
 
+// Función reutilizable para el componente de búsqueda
+export function SearchInput<T>({ items, setFilteredItems }: { items: T[]; setFilteredItems: (filtered: T[]) => void }) {
+  return (
+    <Input
+      placeholder="Search..."
+      onChange={(e) => {
+        const value = e.target.value.toLowerCase();
+        const filtered = items.filter((item) =>
+          Object.values(item).some((val) =>
+            String(val).toLowerCase().includes(value)
+          )
+        );
+        setFilteredItems(filtered);
+      }}
+    />
+  );
+}
+
+// Tabla dinámica con soporte para ordenamiento y exportación a CSV
 export function DynamicTable<T extends Record<string, any>>({
   columns,
   items,
@@ -41,8 +63,21 @@ export function DynamicTable<T extends Record<string, any>>({
   onSortChange: (sortDescriptor: any) => void;
   renderActions?: (item: T) => React.ReactNode;
 }) {
+  const [filteredItems, setFilteredItems] = React.useState(items);
+
+  React.useEffect(() => {
+    setFilteredItems(items);
+  }, [items]);
+
   return (
     <div>
+      {/* Filtros de búsqueda */}
+      <div className="mb-4">
+        <SearchInput
+          items={items}
+          setFilteredItems={setFilteredItems}
+        />
+      </div>
       {/* Botón para exportar a CSV */}
       <div className="flex justify-end mb-4">
         <ExportButton
@@ -77,7 +112,7 @@ export function DynamicTable<T extends Record<string, any>>({
 
         {/* Cuerpo de la tabla */}
         <TableBody
-          items={items}
+          items={filteredItems}
           isLoading={isLoading}
           loadingContent={<Spinner label="Loading..." />}
         >
