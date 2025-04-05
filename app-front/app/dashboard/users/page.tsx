@@ -26,7 +26,7 @@ import {
 import { useState } from "react";
 import { useToast } from "@heroui/react";
 
-import { fetchUsersFromAPI, DynamicTable } from "@/utils/api";
+import { fetchUsersFromAPI, DynamicTable, ExportButton } from "@/utils/api";
 
 export default function UsersPage() {
   const token = getCookie("access_token") as string | null;
@@ -76,7 +76,8 @@ export default function UsersPage() {
                     />
                 </div>
                 <div className="grid flex-1 w-full justify-items-end content-end">
-                    <Button color="primary">Export</Button>
+                    {/* <Button color="primary">Export</Button> */}
+                    {/* <ExportButton data= /> */}
                 </div>
                 <div className="grid flex-1 justify-items-end content-end">
                     <Button color="success" onPress={onOpen}>Add</Button>

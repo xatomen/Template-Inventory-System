@@ -1,4 +1,4 @@
-import { Table, TableHeader, TableBody, TableRow, TableCell, TableColumn, Spinner } from "@heroui/react";
+import { Table, TableHeader, TableBody, TableRow, TableCell, TableColumn, Spinner, Button } from "@heroui/react";
 
 // Función que retorna el listado de usuarios
 export async function fetchUsersFromAPI(token: string | null) {
@@ -26,7 +26,7 @@ export async function fetchUsersFromAPI(token: string | null) {
   }
 }
 
-export function DynamicTable({
+export function DynamicTable<T extends Record<string, any>>({
   columns,
   items,
   isLoading,
@@ -39,56 +39,111 @@ export function DynamicTable({
   isLoading: boolean;
   sortDescriptor: any;
   onSortChange: (sortDescriptor: any) => void;
-  renderActions?: (item: any) => React.ReactNode;
+  renderActions?: (item: T) => React.ReactNode;
 }) {
   return (
-    <Table
-      aria-label="Dynamic Table with Sorting"
-      sortDescriptor={sortDescriptor}
-      onSortChange={onSortChange}
-    >
+    <div>
+      {/* Botón para exportar a CSV */}
+      <div className="flex justify-end mb-4">
+        <ExportButton
+          columns={columns}
+          data={items}
+        />
+      </div>
       {/* Encabezado de la tabla */}
-      <TableHeader>
-        {Object.keys(columns).map((columnKey) => {
-          const column = columns[columnKey];
-          return (
-            <TableColumn
-              key={columnKey}
-              allowsSorting={column.allowsSorting}
-            >
-              {column.key
-                .replace(/_/g, " ")
-                .charAt(0)
-                .toUpperCase() +
-                column.key.slice(1).replace(/_/g, " ")}
-            </TableColumn>
-          );
-        })}
-        {renderActions && <TableColumn key="actions">Actions</TableColumn>}
-      </TableHeader>
-
-      {/* Cuerpo de la tabla */}
-      <TableBody
-        items={items}
-        isLoading={isLoading}
-        loadingContent={<Spinner label="Loading..." />}
+      <Table
+        aria-label="Dynamic Table with Sorting"
+        sortDescriptor={sortDescriptor}
+        onSortChange={onSortChange}
       >
-        {(item) => (
-          <TableRow key={item.id}>
+        {/* Encabezado de la tabla */}
+        <TableHeader>
+          <>
             {Object.keys(columns).map((columnKey) => {
               const column = columns[columnKey];
               return (
-                <TableCell key={columnKey}>
-                  {item[column.key]}
-                </TableCell>
+                <TableColumn
+                  key={columnKey}
+                  allowsSorting={column.allowsSorting}
+                  allowsResizing
+                >
+                  {columnKey.charAt(0).toUpperCase() + columnKey.slice(1)}
+                </TableColumn>
               );
             })}
-            {renderActions && (
-              <TableCell key="actions">{renderActions(item)}</TableCell>
-            )}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+            {renderActions && <TableColumn key="actions">Actions</TableColumn>}
+          </>
+        </TableHeader>
+
+        {/* Cuerpo de la tabla */}
+        <TableBody
+          items={items}
+          isLoading={isLoading}
+          loadingContent={<Spinner label="Loading..." />}
+        >
+          {(item) => (
+            <TableRow key={item.id}>
+              {Object.keys(columns).map((columnKey) => {
+                const column = columns[columnKey];
+                return (
+                  <TableCell key={columnKey}>
+                    {item[column.key]}
+                  </TableCell>
+                );
+              })}
+              {renderActions && (
+                <TableCell key="actions">
+                  {renderActions(item)}
+                </TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+// Función para exportar la tabla a CSV
+export function exportToCSV(headers: string[], data: any[], filename: string) {
+  // Crear el contenido CSV
+  const csvContent = [
+    headers.join(","), // Encabezados
+    ...data.map((row) => headers.map((header) => row[header]).join(",")), // Filas
+  ].join("\n");
+
+  // Crear y descargar el archivo CSV
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Botón para exportar a CSV
+export function ExportButton({ columns, data }: { columns: Record<string, { key: string }>, data: any[] }) {
+  const handleExport = () => {
+    // Extraer los encabezados de las columnas
+    const headers = Object.keys(columns).map((columnKey) => columns[columnKey].key);
+
+    // Procesar los datos visibles en la tabla
+    const processedData = data.map((item) =>
+      Object.keys(columns).reduce((acc, columnKey) => {
+        const column = columns[columnKey];
+        acc[column.key] = item[column.key];
+        return acc;
+      }, {} as Record<string, any>)
+    );
+
+    // Exportar los datos a CSV
+    exportToCSV(headers, processedData, "exported_data.csv");
+  };
+
+  return (
+    <Button color="primary" onPress={handleExport}>
+      Export to CSV
+    </Button>
   );
 }
