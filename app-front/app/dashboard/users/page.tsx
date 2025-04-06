@@ -59,6 +59,7 @@ export default function UsersPage() {
     name: { key: "name", allowsSorting: true },
     lastname: { key: "lastname", allowsSorting: true },
     email: { key: "email", allowsSorting: true },
+    is_admin: { key: "is_admin", allowsSorting: true },
     created_at: { key: "created_at", allowsSorting: true },
   };
   const {isOpen, onOpen, onOpenChange} = useDisclosure();

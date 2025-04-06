@@ -1,6 +1,26 @@
-import { Table, TableHeader, TableBody, TableRow, TableCell, TableColumn, Spinner, Button, Input } from "@heroui/react";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableColumn,
+  Spinner,
+  Button,
+  ButtonGroup,
+  Input,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Form,
+  Select,
+  SelectItem,
+} from "@heroui/react";
 import { useState } from "react";
-import { useToast } from "@heroui/react";
+import { addToast } from "@heroui/react";
 import React from "react";
 
 // Función que retorna el listado de usuarios
@@ -44,6 +64,57 @@ export function SearchInput<T>({ items, setFilteredItems }: { items: T[]; setFil
         setFilteredItems(filtered);
       }}
     />
+  );
+}
+
+// Función que contiene los botones de acción
+export function ActionButtons({ item, columns }: { item: any, columns: Record<string, { key: string; allowsSorting: boolean }> }) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  return (
+    <ButtonGroup size="sm">
+      <Button color="primary" onPress={onOpen}>Edit</Button>
+      <Modal isOpen={isOpen} onOpenChange={onClose}>
+        <ModalContent>
+          <ModalHeader>Edit User</ModalHeader>
+          <ModalBody>
+            <Form
+              // onSubmit={handleEdit}
+            >
+              {/* Editar los campos del item, considerando únicamente los keys que coincidan con los indicados en las columnas */}
+              {Object.keys(columns).map((key) => {
+                const column = columns[key];
+                return (
+                  <Input
+                    size="sm"
+                    key={key}
+                    label={key.charAt(0).toUpperCase() + key.slice(1)}
+                    defaultValue={item[column.key]}
+                    // Si el campo es "id" o "created_at", será isDisabled
+                    isDisabled={key === "id" || key === "created_at" || key === "deleted_at" || key === "is_active"}
+                  />
+                );
+              })}
+              {/* Botón para guardar los cambios */}
+            </Form>
+          </ModalBody>
+          <ModalFooter>
+            <ButtonGroup size="sm">
+              <Button color="secondary" onPress={onClose}>Cancel</Button>
+              <Button color="primary" type="submit">Save</Button>
+            </ButtonGroup>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+
+
+      <Button
+        color="danger"
+        // onPress={handleDelete}
+      >
+        Delete
+        </Button>
+    </ButtonGroup>
   );
 }
 
@@ -128,9 +199,10 @@ export function DynamicTable<T extends Record<string, any>>({
               })}
               {renderActions && (
                 <TableCell key="actions">
-                  {renderActions(item)}
+                  <ActionButtons item={item} columns={columns} />
                 </TableCell>
               )}
+              
             </TableRow>
           )}
         </TableBody>
