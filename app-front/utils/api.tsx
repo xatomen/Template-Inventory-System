@@ -314,19 +314,32 @@ export function exportToCSV(headers: string[], data: any[], filename: string) {
 export function ExportButton({ columns, data }: { columns: Record<string, { key: string }>, data: any[] }) {
   const handleExport = () => {
     // Extraer los encabezados de las columnas
-    const headers = Object.keys(columns).map((columnKey) => columns[columnKey].key);
+    const headers = Object.keys(columns).map((columnKey) => `"${columns[columnKey].key}"`);
 
     // Procesar los datos visibles en la tabla
     const processedData = data.map((item) =>
       Object.keys(columns).reduce((acc, columnKey) => {
         const column = columns[columnKey];
-        acc[column.key] = item[column.key];
+        acc[column.key] = `"${item[column.key]}"`;
         return acc;
       }, {} as Record<string, any>)
     );
 
-    // Exportar los datos a CSV
-    exportToCSV(headers, processedData, "exported_data.csv");
+    // Crear el contenido CSV con separador ; y codificación UTF-8
+    const csvContent = [
+      "\uFEFF", // Indicador BOM para UTF-8
+      headers.join(";"), // Encabezados
+      ...processedData.map((row) => Object.values(row).join(";")), // Filas
+    ].join("\n");
+
+    // Crear y descargar el archivo CSV
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "exported_data.csv";
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
