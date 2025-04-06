@@ -10,14 +10,14 @@ export default function DashboardLayout({
 }) {
     return (
         <section className="w-full min-h-svh">
-            <div className="absolute w-full border-1 border-solid">
+            <div className="absolute w-full">
                 <Navbar />
             </div>
             <div className="flex h-dvh pt-16">
                 <div className="flex-none p-4">
                     <Sidebar />
                 </div>
-                <div className="flex-1 border-1 border-solid rounded-lg m-4">
+                <div className="flex-1 rounded-lg m-4">
                     {children}
                 </div>
             </div>
