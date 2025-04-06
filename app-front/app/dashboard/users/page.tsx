@@ -59,98 +59,17 @@ export default function UsersPage() {
     name: { key: "name", allowsSorting: true },
     lastname: { key: "lastname", allowsSorting: true },
     email: { key: "email", allowsSorting: true },
-    is_admin: { key: "is_admin", allowsSorting: true },
+    // password_hash: { key: "password_hash", allowsSorting: true },
     created_at: { key: "created_at", allowsSorting: true },
+    // deleted_at: { key: "deleted_at", allowsSorting: true },
+    is_admin: { key: "is_admin", allowsSorting: true },
+    // is_active: { key: "is_active", allowsSorting: true },
   };
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
   return (
     <section className="flex flex-col w-full h-full">
         <h1 className="text-2xl font-bold p-4">Users</h1>
-        <Card className="w-full h-full">
-            <div className="flex p-4">
-                <div className="grid flex-auto justify-items-start">
-                    <Input
-                        placeholder="Search..."
-                        // className="w-96"
-                        // onChange={handleSearchChange}
-                    />
-                </div>
-                <div className="grid flex-1 w-full justify-items-end content-end">
-                    {/* <Button color="primary">Export</Button> */}
-                    {/* <ExportButton data= /> */}
-                </div>
-                <div className="grid flex-1 justify-items-end content-end">
-                    <Button color="success" onPress={onOpen}>Add</Button>
-                    <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-                        <ModalContent>
-                        {(onClose) => (
-                            <>
-                            <ModalHeader className="flex flex-col gap-1">Add User</ModalHeader>
-                            <ModalBody>
-                                <Form>
-                                    {/* Name */}
-                                    <Input
-                                        label="Name"
-                                        labelPlacement="outside"
-                                        placeholder="Enter your name"
-                                        type="text"
-                                        variant="bordered"
-                                        className="mb-4"
-                                    />
-                                    {/* Lastname */}
-                                    <Input
-                                        label="Lastname"
-                                        labelPlacement="outside"
-                                        placeholder="Enter your lastname"
-                                        type="text"
-                                        variant="bordered"
-                                        className="mb-4"
-                                    />
-                                    {/* Email */}
-                                    <Input
-                                        label="Email"
-                                        labelPlacement="outside"
-                                        placeholder="Enter your email"
-                                        type="email"
-                                        variant="bordered"
-                                        className="mb-4"
-                                    />
-                                    {/* Password */}
-                                    <Input
-                                        label="Password"
-                                        labelPlacement="outside"
-                                        placeholder="Enter your password"
-                                        type="password"
-                                        variant="bordered"
-                                        className="mb-4"
-                                    />
-                                    {/* Confirm Password */}
-                                    <Input
-                                        label="Confirm Password"
-                                        labelPlacement="outside"
-                                        placeholder="Confirm your password"
-                                        type="password"
-                                        variant="bordered"
-                                        className="mb-4"
-                                    />
-                                    {/* Role */}
-                                    <Switch>
-                                        <span className="text-sm font-semibold text-default-500">Is Admin?</span>
-                                    </Switch>
-                                </Form>
-                            </ModalBody>
-                            <ModalFooter className="justify-center">
-                                <Button color="primary" onPress={onClose}>
-                                    Add User
-                                </Button>
-                            </ModalFooter>
-                            </>
-                        )}
-                        </ModalContent>
-                    </Modal>
-                </div>
-            </div>
             <DynamicTable
                 columns={userColumns}
                 items={list.items}
@@ -159,12 +78,11 @@ export default function UsersPage() {
                 onSortChange={list.sort}
                 renderActions={(item) => (
                     <ButtonGroup>
-                    <Button color="primary">Edit</Button>
-                    <Button color="danger">Delete</Button>
+                        <Button color="primary">Edit</Button>
+                        <Button color="danger">Delete</Button>
                     </ButtonGroup>
                 )}
             />
-        </Card>
     </section>
   );
 }

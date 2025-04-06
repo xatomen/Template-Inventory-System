@@ -19,6 +19,7 @@ import {
   Select,
   SelectItem,
   Switch,
+  Card,
 } from "@heroui/react";
 import { useState } from "react";
 import { addToast } from "@heroui/react";
@@ -65,6 +66,66 @@ export function SearchInput<T>({ items, setFilteredItems }: { items: T[]; setFil
         setFilteredItems(filtered);
       }}
     />
+  );
+}
+
+// // Función para añadir usuarios
+// export async function addUser(token: string | null, userData: any) {
+
+
+
+// }
+
+// Botón para añadir usuarios
+export function AddItemButton({ columns }: { columns: Record<string, { key: string; allowsSorting: boolean }> }) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // const handleAddUser = async () => {
+  //   try {
+  //     await addUser(token, userData);
+  //     onClose();
+  //   } catch (error) {
+  //   }
+  // };
+
+  return (
+    <Button color="success" onPress={onOpen}>
+      Add
+      <Modal isOpen={isOpen} onOpenChange={onClose} className="items-center w-auto">
+        <ModalContent>
+          <ModalHeader>Add Item</ModalHeader>
+          <ModalBody>
+            <Form>
+              {/* Debemos armar dinámicamente el formulario de acuerdo a la lista */}
+              {Object.keys(columns).map((key) => {
+                const column = columns[key];
+                return (
+                  <div key={key}>
+                    {column.key.includes("is_") ? ( // Si el key contiene "is_", se considera un Switch
+                      <Switch size="sm" key={key} defaultSelected={false}>
+                        {key.charAt(0).toUpperCase() + key.slice(1)}
+                      </Switch>
+                    ) : (
+                      <Input
+                        size="sm"
+                        key={key}
+                        label={key.charAt(0).toUpperCase() + key.slice(1)}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </Form>
+          </ModalBody>
+          <ModalFooter>
+            <ButtonGroup size="sm">
+              <Button color="secondary" onPress={onClose}>Cancel</Button>
+              <Button color="primary" type="submit">Save</Button>
+            </ButtonGroup>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </Button>
   );
 }
 
@@ -155,20 +216,27 @@ export function DynamicTable<T extends Record<string, any>>({
   }, [items]);
 
   return (
-    <div>
-      {/* Filtros de búsqueda */}
-      <div className="mb-4">
-        <SearchInput
-          items={items}
-          setFilteredItems={setFilteredItems}
-        />
-      </div>
-      {/* Botón para exportar a CSV */}
-      <div className="flex justify-end mb-4">
-        <ExportButton
-          columns={columns}
-          data={items}
-        />
+    <Card className="py-4 h-full w-full">
+      <div className="flex justify-between px-4 gap-x-4">
+        {/* Filtros de búsqueda */}
+        <div className="flex-1">
+          <SearchInput
+            items={items}
+            setFilteredItems={setFilteredItems}
+          />
+        </div>
+        {/* Botón para exportar a CSV */}
+        <div className="flex justify-end">
+          <ButtonGroup size="sm">
+            <ExportButton
+              columns={columns}
+              data={items}
+            />
+            <AddItemButton
+              columns={columns}
+            />
+          </ButtonGroup>
+        </div>
       </div>
       {/* Encabezado de la tabla */}
       <Table
@@ -216,12 +284,11 @@ export function DynamicTable<T extends Record<string, any>>({
                   <ActionButtons item={item} columns={columns} />
                 </TableCell>
               )}
-              
             </TableRow>
           )}
         </TableBody>
       </Table>
-    </div>
+    </Card>
   );
 }
 
@@ -263,8 +330,8 @@ export function ExportButton({ columns, data }: { columns: Record<string, { key:
   };
 
   return (
-    <Button color="primary" onPress={handleExport}>
-      Export to CSV
+    <Button color="secondary" onPress={handleExport}>
+      Export CSV
     </Button>
   );
 }
