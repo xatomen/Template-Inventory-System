@@ -18,6 +18,7 @@ import {
   Form,
   Select,
   SelectItem,
+  Switch,
 } from "@heroui/react";
 import { useState } from "react";
 import { addToast } from "@heroui/react";
@@ -69,11 +70,12 @@ export function SearchInput<T>({ items, setFilteredItems }: { items: T[]; setFil
 
 // Función que contiene los botones de acción
 export function ActionButtons({ item, columns }: { item: any, columns: Record<string, { key: string; allowsSorting: boolean }> }) {
+  const disableList = ["id", "created_at", "deleted_at", "is_active"];
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <ButtonGroup size="sm">
       <Button color="primary" onPress={onOpen}>Edit</Button>
-      <Modal isOpen={isOpen} onOpenChange={onClose}>
+      <Modal isOpen={isOpen} onOpenChange={onClose} className="items-center w-auto">
         <ModalContent>
           <ModalHeader>Edit User</ModalHeader>
           <ModalBody>
@@ -84,17 +86,29 @@ export function ActionButtons({ item, columns }: { item: any, columns: Record<st
               {Object.keys(columns).map((key) => {
                 const column = columns[key];
                 return (
-                  <Input
-                    size="sm"
-                    key={key}
-                    label={key.charAt(0).toUpperCase() + key.slice(1)}
-                    defaultValue={item[column.key]}
-                    // Si el campo es "id" o "created_at", será isDisabled
-                    isDisabled={key === "id" || key === "created_at" || key === "deleted_at" || key === "is_active"}
-                  />
+                  <div key={key}>
+                    {typeof item[column.key] === "boolean" ? (
+                      <Switch
+                        size="sm"
+                        key={key}
+                        defaultSelected={item[column.key]}
+                        isDisabled={disableList.includes(key)}
+                      >
+                        {key.charAt(0).toUpperCase() + key.slice(1)}
+                      </Switch>
+                    ) : (
+                      <Input
+                        size="sm"
+                        key={key}
+                        label={key.charAt(0).toUpperCase() + key.slice(1)}
+                        defaultValue={item[column.key]}
+                        // Si el campo es "id" o "created_at", será isDisabled
+                        isDisabled={disableList.includes(key)}
+                      />
+                    )}
+                  </div>
                 );
               })}
-              {/* Botón para guardar los cambios */}
             </Form>
           </ModalBody>
           <ModalFooter>
