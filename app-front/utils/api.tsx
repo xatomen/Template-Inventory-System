@@ -55,6 +55,7 @@ export async function fetchUsersFromAPI(token: string | null) {
 export function SearchInput<T>({ items, setFilteredItems }: { items: T[]; setFilteredItems: (filtered: T[]) => void }) {
   return (
     <Input
+      size="sm"
       placeholder="Search..."
       onChange={(e) => {
         const value = e.target.value.toLowerCase();
@@ -216,79 +217,83 @@ export function DynamicTable<T extends Record<string, any>>({
   }, [items]);
 
   return (
-    <Card className="py-4 h-full w-full">
-      <div className="flex justify-between px-4 gap-x-4">
-        {/* Filtros de búsqueda */}
-        <div className="flex-1">
-          <SearchInput
-            items={items}
-            setFilteredItems={setFilteredItems}
-          />
-        </div>
-        {/* Botón para exportar a CSV */}
-        <div className="flex justify-end">
-          <ButtonGroup size="sm">
-            <ExportButton
-              columns={columns}
-              data={items}
+    <div className="flex flex-col w-full h-full">
+      <Card className="p-4 w-full">
+        <div className="flex justify-between gap-x-4">
+          {/* Filtros de búsqueda */}
+          <div className="flex-1">
+            <SearchInput
+              items={items}
+              setFilteredItems={setFilteredItems}
             />
-            <AddItemButton
-              columns={columns}
-            />
-          </ButtonGroup>
+          </div>
+          {/* Botón para exportar a CSV */}
+          <div className="flex justify-end">
+            <ButtonGroup size="sm">
+              <ExportButton
+                columns={columns}
+                data={items}
+              />
+              <AddItemButton
+                columns={columns}
+              />
+            </ButtonGroup>
+          </div>
         </div>
-      </div>
-      {/* Encabezado de la tabla */}
-      <Table
-        aria-label="Dynamic Table with Sorting"
-        sortDescriptor={sortDescriptor}
-        onSortChange={onSortChange}
-      >
+      </Card>
+      <div className="py-4 h-full w-full">
         {/* Encabezado de la tabla */}
-        <TableHeader>
-          <>
-            {Object.keys(columns).map((columnKey) => {
-              const column = columns[columnKey];
-              return (
-                <TableColumn
-                  key={columnKey}
-                  allowsSorting={column.allowsSorting}
-                  allowsResizing
-                >
-                  {columnKey.charAt(0).toUpperCase() + columnKey.slice(1)}
-                </TableColumn>
-              );
-            })}
-            {renderActions && <TableColumn key="actions">Actions</TableColumn>}
-          </>
-        </TableHeader>
-
-        {/* Cuerpo de la tabla */}
-        <TableBody
-          items={filteredItems}
-          isLoading={isLoading}
-          loadingContent={<Spinner label="Loading..." />}
+        <Table
+          aria-label="Dynamic Table with Sorting"
+          sortDescriptor={sortDescriptor}
+          onSortChange={onSortChange}
         >
-          {(item) => (
-            <TableRow key={item.id}>
+          {/* Encabezado de la tabla */}
+          <TableHeader>
+            <>
               {Object.keys(columns).map((columnKey) => {
                 const column = columns[columnKey];
                 return (
-                  <TableCell key={columnKey}>
-                    {item[column.key]}
-                  </TableCell>
+                  <TableColumn
+                    key={columnKey}
+                    allowsSorting={column.allowsSorting}
+                    allowsResizing
+                  >
+                    {columnKey.charAt(0).toUpperCase() + columnKey.slice(1)}
+                  </TableColumn>
                 );
               })}
-              {renderActions && (
-                <TableCell key="actions">
-                  <ActionButtons item={item} columns={columns} />
-                </TableCell>
-              )}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </Card>
+              {renderActions && <TableColumn key="actions">Actions</TableColumn>}
+            </>
+          </TableHeader>
+
+          {/* Cuerpo de la tabla */}
+          <TableBody
+            items={filteredItems}
+            isLoading={isLoading}
+            loadingContent={<Spinner label="Loading..." />}
+          >
+            {(item) => (
+              <TableRow key={item.id}>
+                {Object.keys(columns).map((columnKey) => {
+                  const column = columns[columnKey];
+                  return (
+                    <TableCell key={columnKey}>
+                      {item[column.key]}
+                    </TableCell>
+                  );
+                })}
+                {renderActions && (
+                  <TableCell key="actions">
+                    <ActionButtons item={item} columns={columns} />
+                  </TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   );
 }
 
