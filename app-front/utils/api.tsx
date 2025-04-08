@@ -20,6 +20,7 @@ import {
   SelectItem,
   Switch,
   Card,
+  Checkbox,
 } from "@heroui/react";
 import { useState } from "react";
 import { addToast } from "@heroui/react";
@@ -78,7 +79,7 @@ export function SearchInput<T>({ items, setFilteredItems }: { items: T[]; setFil
 // }
 
 // Botón para añadir usuarios
-export function AddItemButton({ columns }: { columns: Record<string, { key: string; allowsSorting: boolean }> }) {
+export function AddItemButton({ itemName, addItems, columns }: { itemName: string, addItems: Record<string, {key: string, word: string, type: string}>, columns: Record<string, { key: string; allowsSorting: boolean }> }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   // const handleAddUser = async () => {
@@ -94,23 +95,24 @@ export function AddItemButton({ columns }: { columns: Record<string, { key: stri
       Add
       <Modal isOpen={isOpen} onOpenChange={onClose} className="items-center w-auto">
         <ModalContent>
-          <ModalHeader>Add Item</ModalHeader>
+          <ModalHeader>Add {itemName}</ModalHeader>
           <ModalBody>
             <Form>
               {/* Debemos armar dinámicamente el formulario de acuerdo a la lista */}
-              {Object.keys(columns).map((key) => {
-                const column = columns[key];
+              {Object.keys(addItems).map((key) => {
+                const item = addItems[key];
                 return (
                   <div key={key}>
-                    {column.key.includes("is_") ? ( // Si el key contiene "is_", se considera un Switch
-                      <Switch size="sm" key={key} defaultSelected={false}>
-                        {key.charAt(0).toUpperCase() + key.slice(1)}
-                      </Switch>
+                    {item.key.includes("is_") ? ( // Si el key contiene "is_", se considera un Switch
+                      <Checkbox size="sm" key={key} defaultSelected={false}>
+                        {item.word}
+                      </Checkbox>
                     ) : (
                       <Input
                         size="sm"
                         key={key}
-                        label={key.charAt(0).toUpperCase() + key.slice(1)}
+                        label={item.word}
+                        type={item.type}
                       />
                     )}
                   </div>
@@ -131,7 +133,7 @@ export function AddItemButton({ columns }: { columns: Record<string, { key: stri
 }
 
 // Función que contiene los botones de acción
-export function ActionButtons({ item, columns }: { item: any, columns: Record<string, { key: string; allowsSorting: boolean }> }) {
+export function ActionButtons({ itemName, editItems, item, columns }: { itemName: string, editItems: Record<string, {key: string, word: string, type: string}>, item: any, columns: Record<string, { key: string; allowsSorting: boolean }> }) {
   const disableList = ["id", "created_at", "deleted_at", "is_active"];
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
@@ -139,31 +141,32 @@ export function ActionButtons({ item, columns }: { item: any, columns: Record<st
       <Button color="primary" onPress={onOpen}>Edit</Button>
       <Modal isOpen={isOpen} onOpenChange={onClose} className="items-center w-auto">
         <ModalContent>
-          <ModalHeader>Edit User</ModalHeader>
+          <ModalHeader>Edit {itemName}</ModalHeader>
           <ModalBody>
             <Form
               // onSubmit={handleEdit}
             >
               {/* Editar los campos del item, considerando únicamente los keys que coincidan con los indicados en las columnas */}
-              {Object.keys(columns).map((key) => {
-                const column = columns[key];
+              {Object.keys(editItems).map((key) => {
+                const editItem = editItems[key];
                 return (
                   <div key={key}>
-                    {typeof item[column.key] === "boolean" ? (
-                      <Switch
+                    {typeof item[editItem.key] === "boolean" ? (
+                      <Checkbox
                         size="sm"
                         key={key}
-                        defaultSelected={item[column.key]}
+                        defaultSelected={item[editItem.word]}
                         isDisabled={disableList.includes(key)}
                       >
-                        {key.charAt(0).toUpperCase() + key.slice(1)}
-                      </Switch>
+                        {editItem.word}
+                      </Checkbox>
                     ) : (
                       <Input
                         size="sm"
                         key={key}
-                        label={key.charAt(0).toUpperCase() + key.slice(1)}
-                        defaultValue={item[column.key]}
+                        label={editItem.word}
+                        defaultValue={editItem.type === "password" ? "" : item[editItem.key]}
+                        type={editItem.type}
                         // Si el campo es "id" o "created_at", será isDisabled
                         isDisabled={disableList.includes(key)}
                       />
@@ -198,6 +201,9 @@ export function ActionButtons({ item, columns }: { item: any, columns: Record<st
 export function DynamicTable<T extends Record<string, any>>({
   columns,
   items,
+  itemName,
+  addItems,
+  editItems,
   isLoading,
   sortDescriptor,
   onSortChange,
@@ -205,6 +211,9 @@ export function DynamicTable<T extends Record<string, any>>({
 }: {
   columns: Record<string, { key: string; allowsSorting: boolean }>;
   items: any[];
+  itemName: any;
+  addItems: Record<string, {key: string, word: string, type: string}>;
+  editItems: Record<string, {key: string, word: string, type: string}>;
   isLoading: boolean;
   sortDescriptor: any;
   onSortChange: (sortDescriptor: any) => void;
@@ -235,6 +244,8 @@ export function DynamicTable<T extends Record<string, any>>({
                 data={items}
               />
               <AddItemButton
+                itemName={itemName}
+                addItems={addItems}
                 columns={columns}
               />
             </ButtonGroup>
@@ -285,7 +296,7 @@ export function DynamicTable<T extends Record<string, any>>({
                 })}
                 {renderActions && (
                   <TableCell key="actions">
-                    <ActionButtons item={item} columns={columns} />
+                    <ActionButtons itemName={itemName} editItems={editItems} item={item} columns={columns} />
                   </TableCell>
                 )}
               </TableRow>

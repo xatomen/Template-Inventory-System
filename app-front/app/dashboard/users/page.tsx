@@ -54,7 +54,7 @@ export default function UsersPage() {
     },
   });
 
-  const userColumns: Record<string, { key: string; allowsSorting: boolean }> = {
+  const tableColumns: Record<string, { key: string; allowsSorting: boolean }> = {
     id: { key: "id", allowsSorting: true },
     name: { key: "name", allowsSorting: true },
     lastname: { key: "lastname", allowsSorting: true },
@@ -65,14 +65,42 @@ export default function UsersPage() {
     is_admin: { key: "is_admin", allowsSorting: true },
     // is_active: { key: "is_active", allowsSorting: true },
   };
+
+  const addColumns: Record<string, { key: string, word: string, type: string }> = {
+    // id: { key: "id" },
+    name: { key: "name", word: "Name", type: "text" },
+    lastname: { key: "lastname", word: "Last Name", type: "text" },
+    email: { key: "email", word: "Email", type: "email" },
+    password_hash: { key: "password_hash", word: "Password", type: "password" },
+    // created_at: { key: "created_at" },
+    // deleted_at: { key: "deleted_at" },
+    is_admin: { key: "is_admin", word: "Is Admin", type: "checkbox" },
+    // is_active: { key: "is_active" },
+  };
+
+  const editColumns: Record<string, { key: string, word: string, type: string }> = {
+    id: { key: "id", word: "ID", type: "text" },
+    name: { key: "name", word: "Name", type: "text" },
+    lastname: { key: "lastname", word: "Last Name", type: "text" },
+    email: { key: "email", word: "Email", type: "email" },
+    password_hash: { key: "password_hash", word: "New Password", type: "password" },
+    // created_at: { key: "created_at" },
+    // deleted_at: { key: "deleted_at" },
+    is_admin: { key: "is_admin", word: "Is Admin", type: "checkbox" },
+    // is_active: { key: "is_active" },
+  };
+
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
   return (
     <section className="flex flex-col w-full h-full">
         <h1 className="text-2xl font-bold p-4">Users</h1>
             <DynamicTable
-                columns={userColumns}
+                columns={tableColumns}
                 items={list.items}
+                itemName="Users"
+                addItems={addColumns}
+                editItems={editColumns}
                 isLoading={list.isLoading}
                 sortDescriptor={list.sortDescriptor}
                 onSortChange={list.sort}
